@@ -1,8 +1,9 @@
 import flask
-from gym_adapter import make_env
 from io import BytesIO
 import base64
 import logging
+from .served_minerl import make_env
+
 logging.basicConfig(level=logging.DEBUG)
 app = flask.Flask(__name__)
 
