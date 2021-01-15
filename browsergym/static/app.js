@@ -16,7 +16,7 @@ var ctx = canvas.getContext('2d');
 function canvasDraw(rawImgData) {
     var img = new Image();
     img.onload = function () {
-        ctx.drawImage(img, 0, 0)
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
     };
     img.src  = "data:image/png;base64," + rawImgData;
 }

@@ -1,5 +1,6 @@
 import cv2
 import gym
+import gym.wrappers
 import flask
 from io import BytesIO
 
@@ -54,9 +55,10 @@ class FlaskWrapper(gym.Wrapper):
         return data
 
     def process_action(self, ac):
-        print(ac)
         action = {k: int(v in ac['keys'] + ac['mouseButtons']) for k, v in KEY_MAPPING.items()}
         action["camera"] = [ac["mouseDy"], ac["mouseDx"]]
+        if action['attack'] == 1:
+            print("Attack!")
         return action
 
 def make_env():

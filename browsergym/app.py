@@ -3,7 +3,7 @@ from gym_adapter import make_env
 from io import BytesIO
 import base64
 import logging
-logging.basicConfig()
+logging.basicConfig(level=logging.DEBUG)
 app = flask.Flask(__name__)
 
 @app.route('/')
