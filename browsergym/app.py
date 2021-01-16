@@ -15,6 +15,12 @@ def hello_world():
 def step():
     action = flask.request.json
     data = app.env.step(action)
+    return "ok"
+    # return base64.b64encode(data.tobytes())
+
+@app.route('/observe')
+def observe():
+    data = app.env.observe()
     return base64.b64encode(data.tobytes())
 
 if __name__ == '__main__':
