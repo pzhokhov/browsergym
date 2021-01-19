@@ -13,14 +13,6 @@ var canvas = document.querySelector('canvas');
 var ctx = canvas.getContext('2d');
 
 
-function canvasDraw(rawImgData) {
-    var img = new Image();
-    img.onload = function () {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-    };
-    img.src  = "data:image/png;base64," + rawImgData;
-}
-
 // pointer lock object forking for cross browser
 
 canvas.requestPointerLock = canvas.requestPointerLock ||
@@ -57,14 +49,19 @@ canvas.addEventListener( "keyup", function(ev) {
 document.addEventListener('pointerlockchange', lockChangeAlert, false);
 document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
 
+var stepping = true;
+
 function lockChangeAlert() {
   if (document.pointerLockElement === canvas ||
       document.mozPointerLockElement === canvas) {
     console.log('The pointer lock status is now locked');
     document.addEventListener("mousemove", updatePosition, false);
+    stepping = true;
+    observe()
   } else {
     console.log('The pointer lock status is now unlocked');  
     document.removeEventListener("mousemove", updatePosition, false);
+    stepping = false;
   }
 }
 
@@ -81,25 +78,47 @@ var dx = 0;
 var dy = 0;
 
 function step() {   
-    ac = {"mouseDx": dx, "mouseDy": dy, "mouseButtons": Array.from(mouseButtonsDown), "keys": Array.from(keysDown)}
-    dx = 0
-    dy = 0
-   
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            var response = this.responseText; 
-            if (!animation) {
-                animation = requestAnimationFrame(function() {
-                    animation = null;
-                    canvasDraw(response);
-                });
-            }
-        }
+    if (stepping) {
+        ac = {"mouseDx": dx, "mouseDy": dy, "mouseButtons": Array.from(mouseButtonsDown), "keys": Array.from(keysDown)}
+        dx = 0
+        dy = 0
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/step", true)
+        xhr.setRequestHeader("Content-Type", "application/json")
+        xhr.send(JSON.stringify(ac))
     }
-    xhr.open("POST", "/step", true)
-    xhr.setRequestHeader("Content-Type", "application/json")
-    xhr.send(JSON.stringify(ac))
  }
 
-window.setInterval(step, 50)
+function observe() {   
+    if (stepping) {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = this.responseText; 
+                if (!animation) {
+                    animation = requestAnimationFrame(function() {
+                        animation = null;
+                        canvasDraw(response);
+                    });
+                }
+            }
+        }
+        xhr.open("GET", "/observe", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.send();
+    }
+ }
+
+function canvasDraw(rawImgData) {
+    var img = new Image();
+    img.onload = function () {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        observe();
+    };
+    img.src  = "data:image/png;base64," + rawImgData;
+}
+
+
+observe();
+stepping = false;
+window.setInterval(step, 50);

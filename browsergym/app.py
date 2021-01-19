@@ -6,6 +6,7 @@ from .served_minerl import make_env
 
 logging.basicConfig(level=logging.DEBUG)
 app = flask.Flask(__name__)
+last_step_timestamp = None
 
 @app.route('/')
 def hello_world():
@@ -15,8 +16,13 @@ def hello_world():
 def step():
     action = flask.request.json
     data = app.env.step(action)
+    last_step_timestamp = time.time()
     return "ok"
     # return base64.b64encode(data.tobytes())
+
+@app.route('/status')
+def status():
+    return str(last_step_timestamp)
 
 @app.route('/observe')
 def observe():
