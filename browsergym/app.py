@@ -2,11 +2,12 @@ import flask
 from io import BytesIO
 import base64
 import logging
+import time
 from .served_minerl import make_env
 
 logging.basicConfig(level=logging.DEBUG)
 app = flask.Flask(__name__)
-last_step_timestamp = None
+last_step_timestamp = 0
 
 @app.route('/')
 def hello_world():
@@ -14,6 +15,7 @@ def hello_world():
 
 @app.route('/step', methods=['POST'])
 def step():
+    global last_step_timestamp
     action = flask.request.json
     data = app.env.step(action)
     last_step_timestamp = time.time()
