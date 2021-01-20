@@ -18,7 +18,7 @@ def hello_world():
 def step():
     global last_step_timestamp
     action = flask.request.json
-    data = app.env.step(action)
+    data = app.env.step_async(action)
     last_step_timestamp = time.time()
     return "ok"
     # return base64.b64encode(data.tobytes())
