@@ -20,7 +20,7 @@ KEY_MAPPING.update({f"hotbar.{i}": f"Digit{i}" for i in range(1, 10)})
 
 class ServedMinerl(ServedEnv):
     def process_observation(self, ob):
-        served_resolution = (320, 180)
+        served_resolution = (160, 90)
         data = ob['pov']
         data = cv2.cvtColor(data, cv2.COLOR_BGR2RGB)
         data = cv2.resize(data, served_resolution)
@@ -32,12 +32,12 @@ class ServedMinerl(ServedEnv):
 
     def process_action(self, ac):
         action = {k: int(v in ac['keys'] + ac['mouseButtons']) for k, v in KEY_MAPPING.items()}
-        sensitivity = 0.5
+        sensitivity = 0.25
         action["camera"] = [sensitivity * ac["mouseDy"], sensitivity * ac["mouseDx"]]
         return action
 
 def make_env():
-    env = HumanSurvival(resolution=(640, 360)).make()
+    env = HumanSurvival(resolution=(320, 180)).make()
     env = ServedMinerl(env)
     return env
  

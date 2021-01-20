@@ -1,4 +1,6 @@
 from abc import ABC
+from collections import deque
+from threading import Thread
 
 class ServedEnv(ABC):
     def __init__(self, env):
@@ -8,6 +10,13 @@ class ServedEnv(ABC):
         self._last_done = False
         self._last_info = {}
         self._in_step = False
+        self._ac_q = deque()
+        self._thread = Thread(target=self._step_loop)
+        self._thread.start()
+        
+
+    def step_async(self, action_json):
+        self._ac_q.append(action_json)
 
     def step(self, action_json):
         if not self._in_step:
@@ -19,6 +28,14 @@ class ServedEnv(ABC):
                 self._last_ob = self.process_observation(self.env.reset())
             self._in_step = False
         return self._last_ob
+
+    def _step_loop(self):
+        while True:
+            if len(self._ac_q) > 0:
+                self.step(self._ac_q.popleft())
+        
+
+    
         
     def observe(self):
         return self._last_ob

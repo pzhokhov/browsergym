@@ -9,11 +9,15 @@ statuses = {}
 
 
 def check_worker(url):
-    response = requests.get(url + "/status", timeout=1.0)
-    if response.ok:
-        statuses[url] = ("ok", float(response.text))
-    else:
-        statuses[url] = ("fail", None)
+    try:
+        response = requests.get(url + "/status", timeout=1.0)
+        if response.ok:
+            statuses[url] = ("ok", float(response.text))
+            return
+    except requests.exceptions.ConnectionError:
+        pass
+    statuses[url] = ("fail", None)
+    
 
 def check_workers_loop():
     while True:
@@ -36,7 +40,12 @@ def index():
     url = choose_worker()
     return flask.redirect(url)
 
-if __name__ == '__main__':
-    register_worker('http://192.168.8.92:5000')
+def main(urls):
+    for url in urls:
+        register_worker(url)
     Thread(target=check_workers_loop).start()
-    app.run()
+    app.run(host='0.0.0.0', port=80)
+
+if __name__ == '__main__':
+    main(['http://192.168.8.92:5000'])
+

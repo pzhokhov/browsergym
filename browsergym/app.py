@@ -9,6 +9,7 @@ logging.basicConfig(level=logging.DEBUG)
 app = flask.Flask(__name__)
 last_step_timestamp = 0
 
+
 @app.route('/')
 def hello_world():
     return flask.render_template('index.html')
@@ -31,7 +32,11 @@ def observe():
     data = app.env.observe()
     return base64.b64encode(data.tobytes())
 
-if __name__ == '__main__':
+def main():
     app.env = make_env()
     app.run(debug=False, host="0.0.0.0", port=80)
     app.env.env.reset()
+
+if __name__ == '__main__':
+    main()
+
