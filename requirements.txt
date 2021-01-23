@@ -1,0 +1,4 @@
+requests=2.24.0
+gym==0.17.2
+Flask==1.1.2
+-f git+https://github.com/minerllabs/minerl.git@peterz/human_recorder#egg=minerl

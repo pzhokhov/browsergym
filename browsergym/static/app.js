@@ -56,12 +56,11 @@ function lockChangeAlert() {
       document.mozPointerLockElement === canvas) {
     console.log('The pointer lock status is now locked');
     document.addEventListener("mousemove", updatePosition, false);
-    stepping = true;
-    observe()
+    setFocus(true);
   } else {
     console.log('The pointer lock status is now unlocked');  
     document.removeEventListener("mousemove", updatePosition, false);
-    stepping = false;
+    setFocus(false);
   }
 }
 
@@ -77,15 +76,38 @@ function updatePosition(e) {
 var dx = 0;
 var dy = 0;
 
+var socket = null; 
+
+function setFocus(focus) {
+    if (focus) {
+        socket  = new WebSocket("ws://" + document.domain + ":" + location.port + "/ws");
+        // Connection opened
+        socket.addEventListener('open', function (event) {
+            console.log("socket open!")
+            socket.send('Hello Server!');
+            stepping = true;
+        });
+        // Listen for messages
+        socket.addEventListener('message', function (event) {
+            canvasDraw(event.data)
+        });
+    } else {
+        if (socket != null) {
+            // socket.close();
+        }
+        stepping = false;
+    }
+}
+
+
+
 function step() {   
     if (stepping) {
         ac = {"mouseDx": dx, "mouseDy": dy, "mouseButtons": Array.from(mouseButtonsDown), "keys": Array.from(keysDown)}
         dx = 0
         dy = 0
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", "/step", true)
-        xhr.setRequestHeader("Content-Type", "application/json")
-        xhr.send(JSON.stringify(ac))
+        socket.send(JSON.stringify(ac))
     }
  }
 
@@ -119,6 +141,6 @@ function canvasDraw(rawImgData) {
 }
 
 
-observe();
+// observe();
 stepping = false;
 window.setInterval(step, 50);

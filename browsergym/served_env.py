@@ -10,13 +10,13 @@ class ServedEnv(ABC):
         self._last_done = False
         self._last_info = {}
         self._in_step = False
-        self._ac_q = deque()
-        self._thread = Thread(target=self._step_loop)
-        self._thread.start()
+        # self._ac_q = deque()
+        # self._thread = Thread(target=self._step_loop)
+        # self._thread.start()
         
 
-    def step_async(self, action_json):
-        self._ac_q.append(action_json)
+    # def step_async(self, action_json):
+    #     self._ac_q.append(action_json)
 
     def step(self, action_json):
         if not self._in_step:
