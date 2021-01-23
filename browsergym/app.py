@@ -21,11 +21,11 @@ async def status():
 
 @app.websocket("/ws")
 async def step_ws():
-    step_json = await quart.websocket.receive()
-    print(step_json)
+    action_json = await quart.websocket.receive()
+    print(action_json)
     # data = "blabla" + step_json # app.gymenv.step(action)
     # await quart.websocket.send(data)
-    data = app.gymenv.step(action)
+    data = app.gymenv.step(action_json)
     await quart.websocket.send(base64.b64encode(data.tobytes()))
 
 def main():
