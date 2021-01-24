@@ -6,6 +6,7 @@ import time
 from .served_minerl import make_env
 import websockets
 import asyncio
+import json
 
 logging.basicConfig(level=logging.DEBUG)
 app = quart.Quart(__name__)
@@ -21,12 +22,16 @@ async def status():
 
 @app.websocket("/ws")
 async def step_ws():
-    action_json = await quart.websocket.receive()
-    print(action_json)
-    # data = "blabla" + step_json # app.gymenv.step(action)
-    # await quart.websocket.send(data)
-    data = app.gymenv.step(action_json)
-    await quart.websocket.send(base64.b64encode(data.tobytes()))
+    try:
+        while True:
+            action_str = await quart.websocket.receive()
+            print(action_str)
+            # data = "blabla" + step_json # app.gymenv.step(action)
+            # await quart.websocket.send(data)
+            data = app.gymenv.step(json.loads(action_str))
+            await quart.websocket.send(base64.b64encode(data.tobytes()))
+    except asyncio.CancelledError as e:
+        print(e)
 
 def main():
     # print("Starting minecraft")

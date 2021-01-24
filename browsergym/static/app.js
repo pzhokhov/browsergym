@@ -1,12 +1,3 @@
-// helper function
-
-const RADIUS = 20;
-
-function degToRad(degrees) {
-  var result = Math.PI / 180 * degrees;
-  return result;
-}
-
 // setup of the canvas
 
 var canvas = document.querySelector('canvas');
@@ -84,12 +75,14 @@ function setFocus(focus) {
         // Connection opened
         socket.addEventListener('open', function (event) {
             console.log("socket open!")
-            socket.send('Hello Server!');
             stepping = true;
         });
         // Listen for messages
         socket.addEventListener('message', function (event) {
-            canvasDraw(event.data)
+            event.data.text().then(text => canvasDraw(text))
+        });
+        socket.addEventListener('close', function (event) {
+            console.log(event.data)
         });
     } else {
         if (socket != null) {
@@ -106,7 +99,6 @@ function step() {
         ac = {"mouseDx": dx, "mouseDy": dy, "mouseButtons": Array.from(mouseButtonsDown), "keys": Array.from(keysDown)}
         dx = 0
         dy = 0
-        var xhr = new XMLHttpRequest();
         socket.send(JSON.stringify(ac))
     }
  }
@@ -135,12 +127,10 @@ function canvasDraw(rawImgData) {
     var img = new Image();
     img.onload = function () {
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-        observe();
     };
     img.src  = "data:image/png;base64," + rawImgData;
 }
 
 
-// observe();
 stepping = false;
 window.setInterval(step, 50);
