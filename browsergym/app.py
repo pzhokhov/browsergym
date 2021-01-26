@@ -25,11 +25,9 @@ async def step_ws():
         while True:
             action_str = await quart.websocket.receive()
             print(action_str)
-            # data = "blabla" + step_json # app.gymenv.step(action)
-            # await quart.websocket.send(data)
             app.gymenv.step_async(json.loads(action_str))
             data = app.gymenv.observe()
-            await quart.websocket.send(base64.b64encode(data.tobytes()))
+            await quart.websocket.send(data.tobytes())
     except asyncio.CancelledError as e:
         print(e)
 
